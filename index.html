@@ -3,95 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quay Số Người Chơi</title>
+    <title>Vòng quay may mắn</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            color: white;
-            text-align: center;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
         }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-            color: black;
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
         }
-        input, button {
+        .wheel {
             width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #000;
+            transition: transform 3s ease-out;
+        }
+        .arrow {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid red;
         }
         button {
-            background: #28a745;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #218838;
-        }
-        .winner {
             margin-top: 20px;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #ff9800;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Quay Số Người Chơi</h1>
-        <input type="text" id="playerInput" placeholder="Nhập tên người chơi">
-        <button onclick="addPlayer()">Thêm</button>
-        <ul id="playerList"></ul>
-        <button onclick="spinWheel()" style="background: #007bff;">Quay Số</button>
-        <p id="winner" class="winner"></p>
+    <h1>Vòng quay may mắn</h1>
+    <div class="wheel-container">
+        <div class="arrow"></div>
+        <canvas id="wheel" class="wheel"></canvas>
     </div>
-    
+    <button onclick="spinWheel()">Quay</button>
     <script>
-        let players = [];
+        const names = ["Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D", "Đỗ Văn E"];
+        const canvas = document.getElementById("wheel");
+        const ctx = canvas.getContext("2d");
+        const size = names.length;
+        const radius = canvas.width / 2;
+        canvas.width = 300;
+        canvas.height = 300;
         
-        function addPlayer() {
-            const input = document.getElementById("playerInput");
-            const name = input.value.trim();
-            if (name && !players.includes(name)) {
-                players.push(name);
-                updatePlayerList();
-                input.value = "";
+        function drawWheel() {
+            const angle = (2 * Math.PI) / size;
+            for (let i = 0; i < size; i++) {
+                ctx.beginPath();
+                ctx.moveTo(radius, radius);
+                ctx.arc(radius, radius, radius, angle * i, angle * (i + 1));
+                ctx.fillStyle = i % 2 === 0 ? "#ffcc00" : "#ff6600";
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = "black";
+                ctx.font = "14px Arial";
+                ctx.fillText(names[i], radius + Math.cos(angle * (i + 0.5)) * (radius / 1.5) - 20, radius + Math.sin(angle * (i + 0.5)) * (radius / 1.5));
             }
         }
-
-        function updatePlayerList() {
-            const list = document.getElementById("playerList");
-            list.innerHTML = "";
-            players.forEach((player, index) => {
-                const li = document.createElement("li");
-                li.textContent = player;
-                const removeBtn = document.createElement("button");
-                removeBtn.textContent = "X";
-                removeBtn.style.marginLeft = "10px";
-                removeBtn.style.background = "red";
-                removeBtn.onclick = () => removePlayer(index);
-                li.appendChild(removeBtn);
-                list.appendChild(li);
-            });
-        }
-
-        function removePlayer(index) {
-            players.splice(index, 1);
-            updatePlayerList();
-        }
-
+        drawWheel();
+        
         function spinWheel() {
-            if (players.length === 0) return;
-            const randomIndex = Math.floor(Math.random() * players.length);
-            document.getElementById("winner").textContent = "🎉 Người chiến thắng: " + players[randomIndex] + " 🎉";
+            const degrees = Math.floor(Math.random() * 360) + 3600;
+            canvas.style.transform = `rotate(${degrees}deg)`;
         }
     </script>
 </body>
