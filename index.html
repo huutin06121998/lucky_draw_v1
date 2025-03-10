@@ -16,8 +16,8 @@
         }
         .wheel-container {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 500px;
+            height: 500px;
         }
         .wheel {
             width: 100%;
@@ -46,6 +46,11 @@
             border: none;
             cursor: pointer;
         }
+        .copyright {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -55,14 +60,17 @@
         <canvas id="wheel" class="wheel"></canvas>
     </div>
     <button onclick="spinWheel()">Quay</button>
+    <p class="copyright">© 2025 Runner Tín Lạc Đường</p>
     <script>
-        const names = ["Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D", "Đỗ Văn E"];
+        const rewards = ["Bạn sẽ uống 1 ly bia", "Bạn sẽ uống nửa ly bia", "Qua lượt", "Chia sẻ 1 câu chuyện", "Uống 2 ly bia"];
+        const colors = ["#ff0000", "#ff8000", "#ffff00", "#80ff00", "#00ff80"];
         const canvas = document.getElementById("wheel");
         const ctx = canvas.getContext("2d");
-        const size = names.length;
+        const size = rewards.length;
+        canvas.width = 500;
+        canvas.height = 500;
         const radius = canvas.width / 2;
-        canvas.width = 300;
-        canvas.height = 300;
+        let currentRotation = 0;
         
         function drawWheel() {
             const angle = (2 * Math.PI) / size;
@@ -70,19 +78,22 @@
                 ctx.beginPath();
                 ctx.moveTo(radius, radius);
                 ctx.arc(radius, radius, radius, angle * i, angle * (i + 1));
-                ctx.fillStyle = i % 2 === 0 ? "#ffcc00" : "#ff6600";
+                ctx.fillStyle = colors[i % colors.length];
                 ctx.fill();
                 ctx.stroke();
                 ctx.fillStyle = "black";
                 ctx.font = "14px Arial";
-                ctx.fillText(names[i], radius + Math.cos(angle * (i + 0.5)) * (radius / 1.5) - 20, radius + Math.sin(angle * (i + 0.5)) * (radius / 1.5));
+                ctx.textAlign = "center";
+                ctx.fillText(rewards[i], radius + Math.cos(angle * (i + 0.5)) * (radius / 1.5), radius + Math.sin(angle * (i + 0.5)) * (radius / 1.5));
             }
         }
         drawWheel();
         
         function spinWheel() {
             const degrees = Math.floor(Math.random() * 360) + 3600;
-            canvas.style.transform = `rotate(${degrees}deg)`;
+            currentRotation += degrees;
+            canvas.style.transition = "transform 3s ease-out";
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
         }
     </script>
 </body>
