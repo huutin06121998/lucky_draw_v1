@@ -4,17 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vòng quay may mắn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #d0f0c0; /* Màu xanh nhẹ */
             margin: 0;
             padding: 10px;
+            color: #333;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
         .wheel-container {
             position: relative;
@@ -42,32 +50,106 @@
             border-bottom: 30px solid red;
         }
         button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: blue;
+            margin-top: 30px;
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #4CAF50;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        button:active {
+            background-color: #388e3c;
+            transform: scale(1);
         }
         .copyright {
-            margin-top: 20px;
+            margin-top: 30px;
             font-size: 14px;
             color: #666;
             text-align: center;
         }
+        /* Cải thiện kiểu chữ trong vòng quay */
+        .wheel-text {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            width: 70%;
+            max-width: 400px;
+            animation: modal-show 0.5s ease-out;
+        }
+        .modal-content h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .modal-content .reward {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        .modal-content .icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        @keyframes modal-show {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body>
-    <h1>Vòng quay may mắn</h1>
+    <h1>Lớp học Thầy Chim</h1>
     <div class="wheel-container">
         <div class="arrow"></div>
         <canvas id="wheel" class="wheel"></canvas>
     </div>
     <button onclick="spinWheel()">Quay</button>
-    <p class="copyright">© 2025 Runner Tín Lạc Đường</p>
+    <p class="copyright">© 2025 Tin Nguyen</p>
+
+    <!-- Modal -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <h2>Chúc mừng bạn!</h2>
+            <div id="rewardText" class="reward"></div>
+            <div id="rewardIcon" class="icon"></div>
+            <button onclick="closeModal()">Đóng</button>
+        </div>
+    </div>
+
     <script>
-        const rewards = ["Bạn sẽ uống 1 ly bia", "Bạn sẽ uống nửa ly bia", "Qua lượt", "Chia sẻ 1 câu chuyện", "Uống 2 ly bia"];
+        const rewards = [
+            { text: "Bạn sẽ uống 1 ly bia", icon: "🍺" },
+            { text: "Bạn sẽ uống nửa ly bia", icon: "🍻" },
+            { text: "Qua lượt", icon: "🔄" },
+            { text: "Uống 2 ly bia", icon: "🍺🍺" }
+        ];
         const colors = ["#ff0000", "#ff8000", "#ffff00", "#80ff00", "#00ff80"];
         const canvas = document.getElementById("wheel");
         const ctx = canvas.getContext("2d");
@@ -76,7 +158,7 @@
         canvas.width = radius * 2;
         canvas.height = radius * 2;
         let currentRotation = 0;
-        
+
         function drawWheel() {
             const angle = (2 * Math.PI) / size;
             for (let i = 0; i < size; i++) {
@@ -86,19 +168,43 @@
                 ctx.fillStyle = colors[i % colors.length];
                 ctx.fill();
                 ctx.stroke();
+                
                 ctx.fillStyle = "black";
-                ctx.font = "14px Arial";
+                ctx.font = "16px Roboto";
                 ctx.textAlign = "center";
-                ctx.fillText(rewards[i], radius + Math.cos(angle * (i + 0.5)) * (radius / 1.5), radius + Math.sin(angle * (i + 0.5)) * (radius / 1.5));
+                ctx.fillText(rewards[i].text, radius + Math.cos(angle * (i + 0.5)) * (radius / 1.5), radius + Math.sin(angle * (i + 0.5)) * (radius / 1.5));
             }
         }
+
         drawWheel();
-        
+
         function spinWheel() {
             const degrees = Math.floor(Math.random() * 360) + 3600;
             currentRotation += degrees;
             canvas.style.transition = "transform 3s ease-out";
             canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            // Hiển thị modal sau khi quay xong
+            setTimeout(() => {
+                const resultIndex = Math.floor(((currentRotation % 360) / 360) * size);
+                showModal(rewards[resultIndex].text, rewards[resultIndex].icon);
+            }, 3000); // Thông báo sau 3s (sau khi quay xong)
+        }
+
+        function showModal(rewardText, rewardIcon) {
+            const modal = document.getElementById("rewardModal");
+            const rewardTextElement = document.getElementById("rewardText");
+            const rewardIconElement = document.getElementById("rewardIcon");
+
+            rewardTextElement.textContent = rewardText;
+            rewardIconElement.textContent = rewardIcon;
+
+            modal.style.display = "flex";
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("rewardModal");
+            modal.style.display = "none";
         }
     </script>
 </body>
